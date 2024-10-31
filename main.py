@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import pandas as pd
 from datetime import datetime
-#from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse
 
 # Inicialización de FastAPI
 app = FastAPI(
@@ -12,9 +12,9 @@ app = FastAPI(
 # Carga de datos
 data = pd.read_parquet('movies_processed.parquet')
 
-#@app.get("/")
-#def read_root():
-#    return RedirectResponse(url="/docs")
+@app.get("/")
+def read_root():
+    return RedirectResponse(url="/docs")
 
 #Página de presentación
 @app.get('/')
