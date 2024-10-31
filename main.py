@@ -87,6 +87,7 @@ def cantidad_filmaciones_dia(dia: str):
 
 
 # 3. Función para actores
+@app.get("/actor/{nombre_actor}")
 def get_actor(nombre_actor):
     actor_films = data[data['cast'].apply(lambda x: nombre_actor in x if pd.notnull(x) else False)]
     
@@ -100,6 +101,7 @@ def get_actor(nombre_actor):
     }
 
 # 4. Función para directores
+@app.get("/director/{nombre_director}")
 def get_director(nombre_director):
     director_films = data[data['crew'].apply(lambda x: nombre_director in x if pd.notnull(x) else False)]
     
