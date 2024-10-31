@@ -35,7 +35,7 @@ meses = {
     'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
     'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
 }
-# 1- Cantidad de filmaciones por mes
+# 1. Cantidad de filmaciones por mes
 @app.get("/cantidad_filmaciones_mes/{mes}")
 def cantidad_filmaciones_mes(mes: str):
        # Convertir el mes ingresado a minúsculas
@@ -84,3 +84,37 @@ def cantidad_filmaciones_dia(dia: str):
     # Contar la cantidad de películas y retornar el mensaje
     cantidad = len(peliculas_dia)
     return {"mensaje": f"{cantidad} cantidad de películas fueron estrenadas en días {dia.capitalize()}"}
+
+
+# 3. Función para actores
+def get_actor(nombre_actor):
+    actor_films = data[data['cast'].apply(lambda x: nombre_actor in x if pd.notnull(x) else False)]
+    
+    cantidad_peliculas = len(actor_films)
+    retorno_total = actor_films['return'].sum()
+    retorno_promedio = retorno_total / cantidad_peliculas if cantidad_peliculas > 0 else 0
+    
+    return {
+        "mensaje": f"El actor {nombre_actor} ha participado en {cantidad_peliculas} filmaciones, "
+                   f"con un retorno total de {retorno_total} y un promedio de {retorno_promedio} por filmación."
+    }
+
+# 4. Función para directores
+def get_director(nombre_director):
+    director_films = data[data['crew'].apply(lambda x: nombre_director in x if pd.notnull(x) else False)]
+    
+    film_info = [
+        {
+            "pelicula": row['title'],
+            "fecha_lanzamiento": row['release_date'],
+            "retorno": row['return'],
+            "costo": row['budget'],
+            "ganancia": row['revenue'] - row['budget']
+        }
+        for _, row in director_films.iterrows()
+    ]
+    
+    return {
+        "mensaje": f"El director {nombre_director} ha dirigido {len(film_info)} películas.",
+        "detalles": film_info
+    }
