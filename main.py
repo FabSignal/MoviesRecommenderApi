@@ -5,9 +5,14 @@ from fastapi.responses import RedirectResponse
 
 # Inicialización de FastAPI
 app = FastAPI(
-    title='¿Qué vemos hoy?',
-    description= 'Sistema de recomendación para cinéfilos',
-    docs_url='/docs')
+    title='¿Qué vemos hoy?\nAPI para cinéfilos.',
+    description=(
+        'Descubre películas, accede a información detallada y obtén recomendaciones personalizadas basadas en datos. '
+        'Nuestro sistema de recomendación te sugiere películas similares a las que te interesan, haciendo que encontrar tu próxima favorita sea más fácil que nunca.'
+    ),
+    docs_url='/docs'
+)
+
 
 # Carga de datos
 data = pd.read_parquet('movies_processed.parquet')
