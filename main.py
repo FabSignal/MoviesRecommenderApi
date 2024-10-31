@@ -15,7 +15,7 @@ app = FastAPI(
 
 
 # Carga de datos
-data = pd.read_parquet('movies_processed.parquet')
+data = pd.read_parquet('processed_data.parquet')
 
 @app.get("/")
 def read_root():
