@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 
 # Inicialización de FastAPI
 app = FastAPI(
-    title='& consulta sin miedo',
+    title='¿Qué vemos hoy?',
     description= 'Sistema de recomendación para cinéfilos',
     docs_url='/docs')
 
