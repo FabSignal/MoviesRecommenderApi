@@ -116,8 +116,8 @@ def get_actor(nombre_actor:str):
 
     # Calcular cantidad de películas, retorno total y promedio
     cantidad_peliculas = len(actor_films)
-    retorno_total = round(actor_films['return'].sum(), 2)
-    retorno_promedio = round(retorno_total / cantidad_peliculas, 2) if cantidad_peliculas > 0 else 'Datos no disponibles'
+    retorno_total = round(valid_returns['return'].sum(), 2)
+    retorno_promedio = round(retorno_total / len(valid_returns), 2) if len(valid_returns) > 0 else 'Datos no disponibles'
 
     # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
     nombre_formateado = ' '.join([word.capitalize() for word in nombre_actor.split()])
