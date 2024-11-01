@@ -89,23 +89,34 @@ def cantidad_filmaciones_dia(dia: str):
 # 3. Función para actores
 @app.get("/actor/{nombre_actor}")
 def get_actor(nombre_actor:str):
+    # Verificar que el nombre completo (nombre y apellido) haya sido ingresado
+    if len(nombre_actor.split()) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Por favor ingrese el nombre completo del actor, incluyendo nombre y apellido."
+        )
+    
     # Convertir el nombre ingresado a minúsculas para una comparación insensible a mayúsculas
     nombre_actor = nombre_actor.lower()
 
-    # Filtrar las películas donde el nombre del actor (en minúsculas) está presente en la columna 'cast_name'
+    # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast_name'
     actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
 
     # Calcular cantidad de películas, retorno total y promedio
     cantidad_peliculas = len(actor_films)
-    retorno_total = actor_films['return'].sum()
-    retorno_promedio = retorno_total / cantidad_peliculas if cantidad_peliculas > 0 else 0
+    retorno_total = round(actor_films['return'].sum(), 2)
+    retorno_promedio = round(retorno_total / cantidad_peliculas, 2) if cantidad_peliculas > 0 else 0
+
+    # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
+    nombre_formateado = ' '.join([word.capitalize() for word in nombre_actor.split()])
     
     # Retornar el mensaje con los datos calculados
     return {
-        "mensaje": f"El actor {nombre_actor} ha participado en {cantidad_peliculas} filmaciones, "
-                   f"con un retorno total de {retorno_total} y un promedio de {retorno_promedio} por filmación."
+        "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas, "
+                   f"con un retorno total de ${retorno_total:,.2f} y un retorno promedio de ${retorno_promedio:,.2f} por película."
     }
-
+   
+    
 # 4. Función para directores
 @app.get("/director/{nombre_director}")
 def get_director(nombre_director: str):
