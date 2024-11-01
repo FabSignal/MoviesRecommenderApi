@@ -121,6 +121,14 @@ def get_actor(nombre_actor:str):
 # 4. Función para directores
 @app.get("/director/{nombre_director}")
 def get_director(nombre_director: str):
+
+    # Verificar que el nombre completo (nombre y apellido) haya sido ingresado
+    if len(nombre_director.split()) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Por favor ingrese el nombre completo del director, incluyendo nombre y apellido."
+        )
+
     # Convertir el nombre ingresado a minúsculas para comparación insensible a mayúsculas
     nombre_director = nombre_director.lower()
     
@@ -130,19 +138,21 @@ def get_director(nombre_director: str):
         (data['crew_job'] == 'Director')
     ] 
     
-    # Crear una lista con la información de cada película dirigida por el director
-    film_info = [
-        {
-            "pelicula": row['title'],
-            "fecha_lanzamiento": row['release_date'],
-            "retorno": row['return'],
-            "costo": row['budget'],
-            "ganancia": row['revenue'] - row['budget']
-        }
-        for _, row in director_films.iterrows()
-    ]
+    # Crear una lista con la información de cada película dirigida por el director, incluyendo verificación de título nulo
+film_info = [
+    {
+        "pelicula": row['title'] if pd.notnull(row['title']) else "Título no disponible",
+        "fecha_lanzamiento": row['release_date'].strftime("%d-%m-%Y") if pd.notnull(row['release_date']) else "Fecha no disponible",
+        "retorno": round(row['return'], 2) if pd.notnull(row['return']) else "Dato no disponible",
+        "costo": f"${round(row['budget'], 2):,.2f}" if pd.notnull(row['budget']) else "Costo no disponible",
+        "ganancia": f"${round(row['revenue'] - row['budget'], 2):,.2f}" if pd.notnull(row['revenue']) and pd.notnull(row['budget']) else "Ganancia no disponible"
+    }
+    for _, row in director_films.iterrows()
     
+    # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
+    nombre_formateado = ' '.join([word.capitalize() for word in nombre_director.split()])
+
     return {
-        "mensaje": f"El director {nombre_director} ha dirigido {len(film_info)} películas.",
+        "mensaje": f"El director {nombre_formateado} ha dirigido {len(film_info)} películas.",
         "detalles": film_info
     }
