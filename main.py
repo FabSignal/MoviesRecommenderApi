@@ -99,23 +99,39 @@ def get_actor(nombre_actor:str):
     # Convertir el nombre ingresado a minúsculas para una comparación insensible a mayúsculas
     nombre_actor = nombre_actor.lower()
 
+    # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
+    valid_returns = actor_films[actor_films['return'] != 0]
+
+
+
     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast_name'
     actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
 
     # Calcular cantidad de películas, retorno total y promedio
     cantidad_peliculas = len(actor_films)
     retorno_total = round(actor_films['return'].sum(), 2)
-    retorno_promedio = round(retorno_total / cantidad_peliculas, 2) if cantidad_peliculas > 0 else 0
+    retorno_promedio = round(retorno_total / cantidad_peliculas, 2) if cantidad_peliculas > 0 else 'Datos no disponibles'
 
     # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
     nombre_formateado = ' '.join([word.capitalize() for word in nombre_actor.split()])
     
     # Retornar el mensaje con los datos calculados
+    #return {
+    #    "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas, "
+    #               f"con un retorno total acumulado de {retorno_total} veces la inversión "
+    #               f"y un retorno promedio de {retorno_promedio} veces la inversión por película."
+    #}
+
+    # Retornar el mensaje con los datos calculados, aclarando cómo se calcula el promedio
     return {
-        "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas, "
-                   f"con un retorno total acumulado de {retorno_total} veces la inversión "
-                   f"y un retorno promedio de {retorno_promedio} veces la inversión por película."
+        "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas.",
+        "detalles": {
+            "retorno_total": f"{retorno_total} veces la inversión",
+            "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
+            "aclaración": "El retorno promedio se calcula sin incluir películas cuyo retorno fue 0 por falta de datos en 'revenue' o 'budget'."
+        }
     }
+
    
     
 # 4. Función para directores
