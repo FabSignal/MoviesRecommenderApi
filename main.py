@@ -88,13 +88,19 @@ def cantidad_filmaciones_dia(dia: str):
 
 # 3. Función para actores
 @app.get("/actor/{nombre_actor}")
-def get_actor(nombre_actor):
-    actor_films = data[data['cast'].apply(lambda x: nombre_actor in x if pd.notnull(x) else False)]
-    
+def get_actor(nombre_actor:str):
+    # Convertir el nombre ingresado a minúsculas para una comparación insensible a mayúsculas
+    nombre_actor = nombre_actor.lower()
+
+    # Filtrar las películas donde el nombre del actor (en minúsculas) está presente en la columna 'cast_name'
+    actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
+
+    # Calcular cantidad de películas, retorno total y promedio
     cantidad_peliculas = len(actor_films)
     retorno_total = actor_films['return'].sum()
     retorno_promedio = retorno_total / cantidad_peliculas if cantidad_peliculas > 0 else 0
     
+    # Retornar el mensaje con los datos calculados
     return {
         "mensaje": f"El actor {nombre_actor} ha participado en {cantidad_peliculas} filmaciones, "
                    f"con un retorno total de {retorno_total} y un promedio de {retorno_promedio} por filmación."
@@ -102,9 +108,17 @@ def get_actor(nombre_actor):
 
 # 4. Función para directores
 @app.get("/director/{nombre_director}")
-def get_director(nombre_director):
-    director_films = data[data['crew'].apply(lambda x: nombre_director in x if pd.notnull(x) else False)]
+def get_director(nombre_director: str):
+    # Convertir el nombre ingresado a minúsculas para comparación insensible a mayúsculas
+    nombre_director = nombre_director.lower()
     
+    # Filtrar las películas donde crew_name coincide con el director especificado y el crew_job es 'Director'
+    director_films = data[
+        data['crew_name'].apply(lambda x: nombre_director in x.lower() if pd.notnull(x) else False) &
+        (data['crew_job'] == 'Director')
+    ] 
+    
+    # Crear una lista con la información de cada película dirigida por el director
     film_info = [
         {
             "pelicula": row['title'],
