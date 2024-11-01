@@ -108,7 +108,7 @@ def get_actor(nombre_actor:str):
             "mensaje": f"No se encontraron registros para el actor {nombre_actor.capitalize()} en la base de datos."
         }
     
-    # Contar películas con retorno igual a 0 (consideradas como datos faltantes)
+    # Contar películas con retorno igual a 0 (considerados como datos faltantes)
     peliculas_sin_retorno = len(actor_films[actor_films['return'] == 0])
 
     # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
@@ -135,7 +135,7 @@ def get_actor(nombre_actor:str):
         "detalles": {
             "retorno_total": f"{retorno_total} veces la inversión",
             "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
-            "aclaración": "El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
+            "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
         }
     }
 
