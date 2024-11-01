@@ -108,6 +108,9 @@ def get_actor(nombre_actor:str):
             "mensaje": f"No se encontraron registros para el actor {nombre_actor.capitalize()} en la base de datos."
         }
     
+    # Contar películas con retorno igual a 0 (consideradas como datos faltantes)
+    peliculas_sin_retorno = len(actor_films[actor_films['return'] == 0])
+
     # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
     valid_returns = actor_films[actor_films['return'] != 0]
 
