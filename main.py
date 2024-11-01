@@ -113,7 +113,8 @@ def get_actor(nombre_actor:str):
     # Retornar el mensaje con los datos calculados
     return {
         "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas, "
-                   f"con un retorno total de ${retorno_total:,.2f} y un retorno promedio de ${retorno_promedio:,.2f} por película."
+                   f"con un retorno total acumulado de {retorno_total} veces la inversión "
+                   f"y un retorno promedio de {retorno_promedio} veces la inversión por película."
     }
    
     
