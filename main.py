@@ -99,13 +99,11 @@ def get_actor(nombre_actor:str):
     # Convertir el nombre ingresado a minúsculas para una comparación insensible a mayúsculas
     nombre_actor = nombre_actor.lower()
 
-    # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
-    valid_returns = actor_films[actor_films['return'] != 0]
-
-
-
     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast_name'
     actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
+
+    # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
+    valid_returns = actor_films[actor_films['return'] != 0]
 
     # Calcular cantidad de películas, retorno total y promedio
     cantidad_peliculas = len(actor_films)
