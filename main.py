@@ -102,6 +102,12 @@ def get_actor(nombre_actor:str):
     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast_name'
     actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
 
+    # Verificar si el actor no se encuentra en la base de datos
+    if actor_films.empty:
+        return {
+            "mensaje": f"No se encontraron registros para el actor {nombre_actor.capitalize()} en la base de datos."
+        }
+    
     # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
     valid_returns = actor_films[actor_films['return'] != 0]
 
@@ -151,7 +157,14 @@ def get_director(nombre_director: str):
         data['crew_name'].apply(lambda x: nombre_director in x.lower() if pd.notnull(x) else False) &
         (data['crew_job'] == 'Director')
     ] 
-    
+
+    # Verificar si el director no se encuentra en la base de datos
+    if director_films.empty:
+        return {
+            "mensaje": f"No se encontraron registros para el director {nombre_director.capitalize()} en la base de datos."
+        }
+
+    """
     # Crear una lista con la información de cada película dirigida por el director, incluyendo verificación de título nulo
     film_info = [
     {
@@ -162,6 +175,24 @@ def get_director(nombre_director: str):
         "ganancia": f"${round(row['revenue'] - row['budget'], 2):,.2f}" if pd.notnull(row['revenue']) and pd.notnull(row['budget']) else "Ganancia no disponible"
     }
     for _, row in director_films.iterrows()
+    ]
+    """
+
+    # Crear una lista con la información de cada película dirigida por el director
+    film_info = [
+        {
+            "pelicula": row['title'] if pd.notnull(row['title']) else "Título no disponible",
+            "fecha_lanzamiento": row['release_date'].strftime("%d-%m-%Y") if pd.notnull(row['release_date']) else "Fecha no disponible",
+            "retorno": (
+                round(row['return'], 2) if pd.notnull(row['return']) and row['return'] != 0 else "Dato no disponible"
+            ),
+            "costo": f"${round(row['budget'], 2):,.2f}" if pd.notnull(row['budget']) else "Costo no disponible",
+            "ganancia": (
+                f"${round(row['revenue'] - row['budget'], 2):,.2f}"
+                if pd.notnull(row['revenue']) and pd.notnull(row['budget']) and row['revenue'] > 0 else "Ganancia no disponible"
+            )
+        }
+        for _, row in director_films.iterrows()
     ]
 
     # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
