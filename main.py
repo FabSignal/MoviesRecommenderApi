@@ -211,3 +211,59 @@ def get_director(nombre_director: str):
         "mensaje": f"El director {nombre_formateado} ha dirigido {len(film_info)} películas.",
         "detalles": film_info
     }
+
+    # 1. Función para obtener el score de un título
+@app.get("/score_titulo/{titulo_de_la_filmacion}")
+def score_titulo(titulo_de_la_filmacion: str):
+    # Convertir el título a minúsculas para una comparación insensible a mayúsculas
+    titulo_de_la_filmacion = titulo_de_la_filmacion.lower()
+    
+    # Filtrar la fila donde el título coincide
+    film = data[data['title'].str.lower() == titulo_de_la_filmacion]
+    
+    # Verificar si el título no se encuentra en la base de datos
+    if film.empty:
+        return {
+            "mensaje": f"No se encontró la filmación '{titulo_de_la_filmacion}' en la base de datos."
+        }
+    
+    # Obtener título, año de estreno y score
+    titulo = film['title'].values[0]
+    año_estreno = film['release_date'].dt.year.values[0] if pd.notnull(film['release_date'].values[0]) else "Año no disponible"
+    score = film['score'].values[0] if pd.notnull(film['score'].values[0]) else "Score no disponible"
+    
+    # Retornar el mensaje con los datos obtenidos
+    return {
+        "mensaje": f"La película '{titulo}' fue estrenada en el año {año_estreno} con un score/popularidad de {score}."
+    }
+
+
+# 2. Función para obtener votos y valor promedio de votos de un título
+@app.get("/votos_titulo/{titulo_de_la_filmacion}")
+def votos_titulo(titulo_de_la_filmacion: str):
+    # Convertir el título a minúsculas para una comparación insensible a mayúsculas
+    titulo_de_la_filmacion = titulo_de_la_filmacion.lower()
+    
+    # Filtrar la fila donde el título coincide
+    film = data[data['title'].str.lower() == titulo_de_la_filmacion]
+    
+    # Verificar si el título no se encuentra en la base de datos
+    if film.empty:
+        return {
+            "mensaje": f"No se encontró la filmación '{titulo_de_la_filmacion}' en la base de datos."
+        }
+    
+    # Obtener el número de votos y el promedio de votaciones
+    cantidad_votos = film['vote_count'].values[0] if pd.notnull(film['vote_count'].values[0]) else 0
+    valor_promedio_votos = round(film['vote_average'].values[0], 2) if pd.notnull(film['vote_average'].values[0]) else "Promedio de votos no disponible"
+    
+    # Verificar si el título cumple con la condición mínima de 2000 votos
+    if cantidad_votos < 2000:
+        return {
+            "mensaje": f"La película '{film['title'].values[0]}' no cumple con el mínimo de 2000 valoraciones, por lo tanto, no se devuelve ningún valor."
+        }
+    
+    # Retornar el mensaje con los datos obtenidos
+    return {
+        "mensaje": f"La película '{film['title'].values[0]}' tiene {cantidad_votos} valoraciones, con un valor promedio de {valor_promedio_votos}."
+    }
