@@ -230,7 +230,7 @@ def score_titulo(titulo_de_la_filmacion: str):
     # Obtener título, año de estreno y score
     titulo = film['title'].values[0]
     año_estreno = film['release_date'].dt.year.values[0] if pd.notnull(film['release_date'].values[0]) else "Año no disponible"
-    score = film['score'].values[0] if pd.notnull(film['score'].values[0]) else "Score no disponible"
+    score = film['popularity'].values[0] if pd.notnull(film['popularity'].values[0]) else "Score no disponible"
     
     # Retornar el mensaje con los datos obtenidos
     return {
