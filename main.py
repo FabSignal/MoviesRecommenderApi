@@ -212,7 +212,7 @@ def get_director(nombre_director: str):
         "detalles": film_info
     }
 
-    # 1. Función para obtener el score de un título
+# 5. Función para obtener el score de un título
 @app.get("/score_titulo/{titulo_de_la_filmacion}")
 def score_titulo(titulo_de_la_filmacion: str):
     # Convertir el título a minúsculas para una comparación insensible a mayúsculas
@@ -238,7 +238,7 @@ def score_titulo(titulo_de_la_filmacion: str):
     }
 
 
-# 2. Función para obtener votos y valor promedio de votos de un título
+# 6. Función para obtener votos y valor promedio de votos de un título
 @app.get("/votos_titulo/{titulo_de_la_filmacion}")
 def votos_titulo(titulo_de_la_filmacion: str):
     # Convertir el título a minúsculas para una comparación insensible a mayúsculas
