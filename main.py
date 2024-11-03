@@ -26,8 +26,6 @@ def read_root():
 async def index():
     return 'Bienvenid@s! ¿Qué vemos hoy?'
 
-# Asegurar que la columna 'release_date' esté en formato datetime
-
 
 # Diccionario para mapear los meses en español
 meses = {
@@ -35,6 +33,7 @@ meses = {
     'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8,
     'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12
 }
+
 # 1. Cantidad de filmaciones por mes
 @app.get("/cantidad_filmaciones_mes/{mes}")
 def cantidad_filmaciones_mes(mes: str):
@@ -53,9 +52,6 @@ def cantidad_filmaciones_mes(mes: str):
 
 
 # 2.
-
-# Asegúrate de que la columna 'release_date' esté en formato de fecha
-data['release_date'] = pd.to_datetime(data['release_date'], errors='coerce')
 
 # Diccionario que incluye formas con y sin acento
 dias_semana = {
@@ -77,12 +73,11 @@ def cantidad_filmaciones_dia(dia: str):
     if dia not in dias_semana:
         raise HTTPException(status_code=400, detail= 'Día no válido. Elige entre: lunes, martes, miércoles, jueves, viernes, sábado o domingo.')
 
-    # Filtrar las películas que fueron estrenadas en el día de la semana deseado
+    # Filtrar y contar las películas que fueron estrenadas en el día de la semana deseado
     dia_num = dias_semana[dia]
-    peliculas_dia = data[data['release_date'].dt.weekday == dia_num]
+    cantidad = data[data['release_date'].dt.weekday == dia_num].shape[0]
 
-    # Contar la cantidad de películas y retornar el mensaje
-    cantidad = len(peliculas_dia)
+    # Retornar el mensaje
     return {"mensaje": f"{cantidad} cantidad de películas fueron estrenadas en días {dia.capitalize()}"}
 
 
@@ -100,7 +95,8 @@ def get_actor(nombre_actor:str):
     nombre_actor = nombre_actor.lower()
 
     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast_name'
-    actor_films = data[data['cast_name'].apply(lambda x: nombre_actor in x.lower() if pd.notnull(x) else False)]
+    actor_films = data[data['cast'].apply(lambda x: any(nombre_actor == actor.lower() for actor in x) if pd.notnull(x) else False)]
+
 
     # Verificar si el actor no se encuentra en la base de datos
     if actor_films.empty:
@@ -121,13 +117,7 @@ def get_actor(nombre_actor:str):
 
     # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
     nombre_formateado = ' '.join([word.capitalize() for word in nombre_actor.split()])
-    
-    # Retornar el mensaje con los datos calculados
-    #return {
-    #    "mensaje": f"El actor {nombre_formateado} ha participado en {cantidad_peliculas} películas, "
-    #               f"con un retorno total acumulado de {retorno_total} veces la inversión "
-    #               f"y un retorno promedio de {retorno_promedio} veces la inversión por película."
-    #}
+
 
     # Retornar el mensaje con los datos calculados, aclarando cómo se calcula el promedio
     return {
@@ -155,11 +145,8 @@ def get_director(nombre_director: str):
     # Convertir el nombre ingresado a minúsculas para comparación insensible a mayúsculas
     nombre_director = nombre_director.lower()
     
-    # Filtrar las películas donde crew_name coincide con el director especificado y el crew_job es 'Director'
-    director_films = data[
-        data['crew_name'].apply(lambda x: nombre_director in x.lower() if pd.notnull(x) else False) &
-        (data['crew_job'] == 'Director')
-    ] 
+    # Filtrar las películas donde ..............
+    director_films = data[data['directors'].apply(lambda x: nombre_director == x.lower() if pd.notnull(x) else False)]
 
     # Verificar si el director no se encuentra en la base de datos
     if director_films.empty:
@@ -168,19 +155,31 @@ def get_director(nombre_director: str):
         }
 
     """
-    # Crear una lista con la información de cada película dirigida por el director, incluyendo verificación de título nulo
-    film_info = [
-    {
-        "pelicula": row['title'] if pd.notnull(row['title']) else "Título no disponible",
-        "fecha_lanzamiento": row['release_date'].strftime("%d-%m-%Y") if pd.notnull(row['release_date']) else "Fecha no disponible",
-        "retorno": round(row['return'], 2) if pd.notnull(row['return']) else "Dato no disponible",
-        "costo": f"${round(row['budget'], 2):,.2f}" if pd.notnull(row['budget']) else "Costo no disponible",
-        "ganancia": f"${round(row['revenue'] - row['budget'], 2):,.2f}" if pd.notnull(row['revenue']) and pd.notnull(row['budget']) else "Ganancia no disponible"
-    }
-    for _, row in director_films.iterrows()
-    ]
-    """
+    # Contar películas con retorno igual a 0 (considerados como datos faltantes)
+    peliculas_sin_retorno = len(director_films[director_films['return'] == 0])
 
+    # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
+    valid_returns = director_films[director_films['return'] != 0]
+
+    # Calcular cantidad de películas, retorno total y promedio
+    cantidad_peliculas = len(director_films)
+    retorno_total = round(valid_returns['return'].sum(), 2)
+    retorno_promedio = round(retorno_total / len(valid_returns), 2) if len(valid_returns) > 0 else 'Datos no disponibles'
+
+    # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
+    nombre_formateado = nombre_director.title()
+
+    # Retornar el mensaje con los datos calculados, aclarando cómo se calcula el promedio
+    return {
+        "mensaje": f"El director {nombre_formateado} ha participado en {cantidad_peliculas} películas.",
+        "detalles": {
+            "retorno_total": f"{retorno_total} veces la inversión",
+            "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
+            "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
+        }
+    }
+
+    """
     # Crear una lista con la información de cada película dirigida por el director
     film_info = [
         {
@@ -211,6 +210,8 @@ def get_director(nombre_director: str):
         "mensaje": f"El director {nombre_formateado} ha dirigido {len(film_info)} películas.",
         "detalles": film_info
     }
+
+    
 
 # 5. Función para obtener el score de un título
 @app.get("/score_titulo/{titulo_de_la_filmacion}")
