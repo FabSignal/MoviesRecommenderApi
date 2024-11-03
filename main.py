@@ -81,16 +81,24 @@ def cantidad_filmaciones_dia(dia: str):
     # Retornar el mensaje
     return {"mensaje": f"{cantidad} cantidad de películas fueron estrenadas en días {dia.capitalize()}"}
 
-# Función ensure_list para convertir a listas y asegurar que la columna 'cast' mantenga formato lista
+
+# Función ensure_list para garantizar que 'cast' contenga listas de strings y no numpy arrays
 def ensure_list(val):
     if isinstance(val, str):
         try:
-            return ast.literal_eval(val)
+            return ast.literal_eval(val)  # Convierte la cadena de texto a una lista
         except (ValueError, SyntaxError):
             return []  # Retorna una lista vacía si la conversión falla
-    return val if isinstance(val, list) else []
+    elif isinstance(val, np.ndarray):
+        # Si es un numpy array, convierte a lista explícitamente
+        return val.tolist()
+    elif isinstance(val, list):
+        # Asegura que todos los elementos en la lista sean strings
+        return [str(actor) for actor in val]
+    else:
+        return []
 
-# Aplicar la conversión a la columna 'cast' solo si es necesario
+# Aplicar la conversión a la columna 'cast' para que todas las filas sean listas de strings
 data['cast'] = data['cast'].apply(ensure_list)
 
 # 3. Función para actores
