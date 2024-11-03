@@ -81,6 +81,17 @@ def cantidad_filmaciones_dia(dia: str):
     # Retornar el mensaje
     return {"mensaje": f"{cantidad} cantidad de películas fueron estrenadas en días {dia.capitalize()}"}
 
+# Función ensure_list para convertir a listas y asegurar que la columna 'cast' mantenga formato lista
+def ensure_list(val):
+    if isinstance(val, str):
+        try:
+            return ast.literal_eval(val)
+        except (ValueError, SyntaxError):
+            return []  # Retorna una lista vacía si la conversión falla
+    return val if isinstance(val, list) else []
+
+# Aplicar la conversión a la columna 'cast' solo si es necesario
+data['cast'] = data['cast'].apply(ensure_list)
 
 # 3. Función para actores
 @app.get("/actor/{nombre_actor}")
