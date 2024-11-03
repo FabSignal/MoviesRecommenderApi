@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 import pandas as pd
+import  numpy as np
 from datetime import datetime
 from fastapi.responses import RedirectResponse
 import ast
