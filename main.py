@@ -147,8 +147,8 @@ def get_actor(nombre_actor:str):
         "detalles": {
             "retorno_total": f"{retorno_total} veces la inversión",
             "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
-            "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
-            #"peliculas" : actor_films[['titulo', 'return']].to_dict(orient='records')  # Agrega títulos de películas y su retorno
+            "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos.",
+            "peliculas" : actor_films[['title', 'return']].to_dict(orient='records')  # Agrega títulos de películas y su retorno
         }
     }
       
