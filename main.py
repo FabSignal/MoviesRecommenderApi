@@ -95,11 +95,8 @@ def get_actor(nombre_actor:str):
     # Convertir el nombre ingresado a minúsculas para una comparación insensible a mayúsculas
     nombre_actor = nombre_actor.lower()
 
-    # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast'
-    actor_films = data[data['cast'].apply(
-        lambda cast_list: any(nombre_actor == actor.strip().lower() for actor in ast.literal_eval(cast_list)) 
-        if pd.notnull(cast_list) else False
-    )]
+     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast'
+    actor_films = data[data['cast'].apply(lambda x: any(nombre_actor == actor.strip().lower() for actor in x) if isinstance(x, list) else False)]
 
     # Verificar si el actor no se encuentra en la base de datos
     if actor_films.empty:
