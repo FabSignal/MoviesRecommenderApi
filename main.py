@@ -96,7 +96,9 @@ def get_actor(nombre_actor:str):
     nombre_actor = nombre_actor.lower()
 
      # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast'
-    actor_films = data[data['cast'].apply(lambda x: any(nombre_actor == actor.strip().lower() for actor in x) if isinstance(x, list) else False)]
+    actor_films = data[data['cast'].apply(
+        lambda x: any(nombre_actor == actor.strip().lower() for actor in x) if isinstance(x, list) else False
+    )]
 
     # Verificar si el actor no se encuentra en la base de datos
     if actor_films.empty:
@@ -126,8 +128,10 @@ def get_actor(nombre_actor:str):
             "retorno_total": f"{retorno_total} veces la inversión",
             "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
             "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
+            #"peliculas" : actor_films[['titulo', 'return']].to_dict(orient='records')  # Agrega títulos de películas y su retorno
         }
     }
+      
 
    
     
