@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 import pandas as pd
 from datetime import datetime
 from fastapi.responses import RedirectResponse
+import ast
 
 # Inicialización de FastAPI
 app = FastAPI(
@@ -96,9 +97,9 @@ def get_actor(nombre_actor:str):
 
     # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast'
     actor_films = data[data['cast'].apply(
-        lambda cast_list: any(nombre_actor == actor.strip().lower() for actor in eval(cast_list)) if pd.notnull(cast_list) else False
+        lambda cast_list: any(nombre_actor == actor.strip().lower() for actor in ast.literal_eval(cast_list)) 
+        if pd.notnull(cast_list) else False
     )]
-
 
     # Verificar si el actor no se encuentra en la base de datos
     if actor_films.empty:
