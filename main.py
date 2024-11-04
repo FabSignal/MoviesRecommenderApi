@@ -100,7 +100,7 @@ def ensure_list(val):
         return []
 
 # Aplicar la conversión a la columna 'cast' para que todas las filas sean listas de strings
-data['cast'] = data['cast'].apply(ensure_list)
+data['main_cast'] = data['main_cast'].apply(ensure_list)
 
 # 3. Función para actores
 @app.get("/actor/{nombre_actor}")
@@ -116,7 +116,7 @@ def get_actor(nombre_actor:str):
     nombre_actor = nombre_actor.lower()
 
      # Filtrar las películas donde el nombre completo del actor (en minúsculas) está presente en la columna 'cast'
-    actor_films = data[data['cast'].apply(
+    actor_films = data[data['main_cast'].apply(
         lambda x: any(nombre_actor == actor.strip().lower() for actor in x) if isinstance(x, list) else False
     )]
 
