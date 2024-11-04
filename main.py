@@ -17,7 +17,7 @@ app = FastAPI(
 
 
 # Carga de datos
-data = pd.read_parquet('merged_data.parquet')
+data = pd.read_parquet('merged_data_model.parquet')
 
 @app.get("/")
 def read_root():
