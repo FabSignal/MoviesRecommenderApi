@@ -292,3 +292,34 @@ def votos_titulo(titulo_de_la_filmacion: str):
     return {
         "mensaje": f"La película '{film['title'].values[0]}' tiene {cantidad_votos} valoraciones, con un valor promedio de {valor_promedio_votos}."
     }
+
+
+# Cargar datos y matriz de similitud al iniciar la aplicación
+data_filtered = pd.read_parquet('data/data_filtered.parquet')
+with open('data/cosine_sim.pkl', 'rb') as f:
+    cosine_sim = pickle.load(f)
+
+# Crear índice de títulos para búsqueda rápida
+indices = pd.Series(data_filtered.index, index=data_filtered['title']).drop_duplicates()
+
+@app.get("/recomendacion/")
+def recomendacion(titulo: str):
+    # Comprobar si el título existe en el índice
+    if titulo not in indices:
+        raise HTTPException(status_code=404, detail="La película no está en el dataset.")
+    
+    # Obtener el índice de la película de entrada
+    idx = indices[titulo]
+    
+    # Obtener las similitudes de la película con todas las demás
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    
+    # Ordenar las películas en base a su score de similitud en orden descendente
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    
+    # Obtener los índices de las 5 películas más similares (excluyendo la misma película)
+    sim_indices = [i[0] for i in sim_scores[1:6]]
+    
+    # Devolver los títulos de las 5 películas más similares
+    similar_movies = data_filtered['title'].iloc[sim_indices]
+    return {"recomendaciones": similar_movies.tolist()}
