@@ -179,32 +179,7 @@ def get_director(nombre_director: str):
             "mensaje": f"No se encontraron registros para el director {nombre_director.capitalize()} en la base de datos."
         }
 
-    """
-    # Contar películas con retorno igual a 0 (considerados como datos faltantes)
-    peliculas_sin_retorno = len(director_films[director_films['return'] == 0])
-
-    # Filtrar para el cálculo solo las filas donde `return` tiene un valor válido distinto de cero
-    valid_returns = director_films[director_films['return'] != 0]
-
-    # Calcular cantidad de películas, retorno total y promedio
-    cantidad_peliculas = len(director_films)
-    retorno_total = round(valid_returns['return'].sum(), 2)
-    retorno_promedio = round(retorno_total / len(valid_returns), 2) if len(valid_returns) > 0 else 'Datos no disponibles'
-
-    # Formatear el nombre para que aparezca con iniciales en mayúsculas en el mensaje
-    nombre_formateado = nombre_director.title()
-
-    # Retornar el mensaje con los datos calculados, aclarando cómo se calcula el promedio
-    return {
-        "mensaje": f"El director {nombre_formateado} ha participado en {cantidad_peliculas} películas.",
-        "detalles": {
-            "retorno_total": f"{retorno_total} veces la inversión",
-            "retorno_promedio": retorno_promedio if retorno_promedio != "Datos no disponibles" else "Datos no disponibles",
-            "aclaración": f"El retorno promedio se calcula sin incluir {peliculas_sin_retorno} películas cuyo retorno fue 0 por falta de datos."
-        }
-    }
-
-    """
+   
     # Crear una lista con la información de cada película dirigida por el director
     film_info = [
         {
@@ -295,6 +270,7 @@ def votos_titulo(titulo_de_la_filmacion: str):
     }
 
 
+# 7. Función de recomendación de películas
 # Cargar datos y matriz de similitud al iniciar la aplicación
 data_filtered = pd.read_parquet('data/data_de_prueba.parquet')
 with open('data/cosine_sim.pkl', 'rb') as f:
@@ -305,22 +281,29 @@ indices = pd.Series(data_filtered.index, index=data_filtered['title']).drop_dupl
 
 @app.get("/recomendacion/")
 def recomendacion(titulo: str):
-    # Comprobar si el título existe en el índice
+    """
+    Esta función devuelve las 5 películas más similares a una película dada, 
+    basándose en la similitud de coseno entre las características de las películas.
+
+    Parámetros:
+    - titulo (str): El título de la película de la cual se desean obtener las recomendaciones.
+
+    Retorna:
+    - dict: Un diccionario con una lista de las 5 películas más similares al título proporcionado.
+    
+    Si el título no se encuentra en el dataset, se lanza un error 404.
+    """
     if titulo not in indices:
         raise HTTPException(status_code=404, detail="La película no está en el dataset.")
     
-    # Obtener el índice de la película de entrada
     idx = indices[titulo]
     
-    # Obtener las similitudes de la película con todas las demás
     sim_scores = list(enumerate(cosine_sim[idx]))
     
-    # Ordenar las películas en base a su score de similitud en orden descendente
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     
-    # Obtener los índices de las 5 películas más similares (excluyendo la misma película)
     sim_indices = [i[0] for i in sim_scores[1:6]]
     
-    # Devolver los títulos de las 5 películas más similares
     similar_movies = data_filtered['title'].iloc[sim_indices]
     return {"recomendaciones": similar_movies.tolist()}
+
