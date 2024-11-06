@@ -295,7 +295,7 @@ def votos_titulo(titulo_de_la_filmacion: str):
 
 
 # Cargar datos y matriz de similitud al iniciar la aplicación
-data_filtered = pd.read_parquet('data/data_filtered.parquet')
+data_filtered = pd.read_parquet('data/data_de_prueba.parquet')
 with open('data/cosine_sim.pkl', 'rb') as f:
     cosine_sim = pickle.load(f)
 
