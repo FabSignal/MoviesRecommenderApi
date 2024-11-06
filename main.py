@@ -4,6 +4,7 @@ import  numpy as np
 from datetime import datetime
 from fastapi.responses import RedirectResponse
 import ast
+import pickle
 
 # Inicialización de FastAPI
 app = FastAPI(
